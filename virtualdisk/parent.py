@@ -3,6 +3,7 @@ from os import path, listdir, chdir
 from datetime import datetime
 
 class ParentFolder:
+    '''Set parent directory for local files'''
 
     def __init__(self, parent):
         self.parent_directory = parent
@@ -35,8 +36,4 @@ class ParentFolder:
 
     def format_file_dates(self, files):
         '''Format the file paths and datetimes into a list of tuples'''
-        timestamps = []
-        for file in files:
-            timestamps.append((str(file), self.fetch_modification_time(file)))
-        
-        return timestamps
+        return [(str(file), self.fetch_modification_time(file)) for file in files]

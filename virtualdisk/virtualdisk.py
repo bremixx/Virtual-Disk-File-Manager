@@ -3,6 +3,7 @@ from datetime import datetime
 from creds import params
 
 class VirtualDisk:
+    '''Interface with Virtual Disk FTP server'''
 
     def __init__(self):
         '''Initialize Mailo.com VirtualDisk server connection'''

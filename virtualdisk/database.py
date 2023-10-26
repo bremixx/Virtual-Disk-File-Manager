@@ -1,6 +1,7 @@
 import sqlite3
 
 class Database:
+    '''Sets up local file database and handles timestamp checking with FTP server'''
 
     def __init__(self):
         '''Create SQL database for timestamp storage'''
