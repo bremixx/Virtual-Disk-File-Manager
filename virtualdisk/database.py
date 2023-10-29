@@ -47,20 +47,27 @@ class Database:
             if file not in ref:
                 func(file)
 
-    def compare_local_db(self, files):
+    def evaluate(self, values, refs):
+        '''Comparison function for evaluation of local-database-server items'''
+        values = {value[0]: value[1] for value in values}
+        refs = {ref[0]: ref[1] for ref in refs}
+
+        common = set(values.keys()) & set(refs.keys())
+
+        return [path for path in common if values[path] > refs[path]]
+
+    def compare_local_db(self, files):  
         '''Compare local files to database'''
-
-        self.comparison(values=files, ref=self.query_db(), 
+        self.comparison(values=files, ref=(query:=self.query_db()), 
             func=self.add_to_db)
-        self.comparison(values=self.query_db(), 
-            ref=files, func=self.delete_entry)
-
-        for local, db in zip(sorted(files), sorted(self.query_db())):
-            if local != db: 
-                self.files_to_upload.append(local[0])
-                self.update_db(local)
         
-        return self.files_to_upload
+        self.comparison(values=files, ref=query, func=self.update_db)
+        
+        self.comparison(values=self.query_db(), ref=files, func=self.delete_entry)
+
+        self.files_to_upload += self.evaluate(files, query)
+        
+        return list(set(self.files_to_upload))
 
     def close_db(self):
         '''Close SQL database connection'''
@@ -68,9 +75,6 @@ class Database:
     
     def compare_db_server(self, database, virtualdisk):
         '''Compare SQL database files to FTP server'''
-        for db, server in zip(sorted(database), sorted(virtualdisk)):
-            if db[0] in server[0]:
-                if db[1] > server[1]: self.files_to_upload.append(db[0])
-            else: self.files_to_upload.append(db[0])
-        
-        return self.files_to_upload
+        self.files_to_upload += self.evaluate(
+            values=database, refs=virtualdisk)
+        return list(set(self.files_to_upload))
